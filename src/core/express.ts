@@ -3,21 +3,15 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { envs } from './envs'
 
+import '../start/routes'
+import { Route } from './route'
+
 class ExpressApp {
   private express: Express
 
   constructor() {
     this.express = express()
     this.configuration()
-
-    this.express.get('/', (req, res) => {
-      res.send('Hello World!')
-    })
-
-    this.express.post('/', (req, res) => {
-      console.log({ body: req.body })
-      res.send(JSON.stringify(req.body, null, 2))
-    })
   }
 
   private configuration() {
@@ -27,9 +21,18 @@ class ExpressApp {
     this.express.use(helmet())
   }
 
+  public setRoutes() {
+    console.log(Route.routes)
+
+    for (const route of Route.routes) {
+      this.express[route.method](route.path,async (req,res)=> res.send(await route.handle(req)))
+    }
+  }
+
   public start() {
+    this.setRoutes()
     this.express.listen(envs.PORT_APP, () => {
-      console.log(`Example app listening at http://localhost:${envs.PORT_APP}`)
+      console.log(`App listening at http://localhost:${envs.PORT_APP}`)
     })
   }
 }

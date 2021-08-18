@@ -1,4 +1,4 @@
-import ExpressApp from './app/express'
+import ExpressApp from './core/express'
 
 const app = new ExpressApp()
 
