@@ -3,10 +3,10 @@ export interface HttpResponse {
   body?: any
 }
 
-export interface HttpRequest<Body = any, Query = any, Param = any> {
+export interface HttpRequest<Body = any, Query = any, Params = any> {
   body: Body,
   query: Query,
-  param: Param,
+  params: Params,
 }
 
 export enum HttpMethod {

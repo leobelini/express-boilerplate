@@ -1,11 +1,18 @@
-import { HttpMethod,HttpRequest,HttpResponse } from "../../protocols/http"
+import { HttpRequest, HttpResponse } from "../../protocols/http"
 
-export const Hello = new class Hello {
- async handle(req:HttpRequest):Promise<HttpResponse>{
-   console.log(req.body)
-   return{
-     statusCode:200,
-     body:"Hello"
-   }
- }
+class Hello {
+  async handle(req: HttpRequest): Promise<HttpResponse> {
+
+    return {
+      statusCode: 200,
+      body: {
+        body: req.body,
+        params: req.params,
+        query: req.query,
+      }
+    }
+  }
 }
+
+
+export const ControllerHello = new Hello()

@@ -5,6 +5,8 @@ import { envs } from './envs'
 
 import '../start/routes'
 import { Route } from './route'
+import { Middleware } from '../protocols/middleware'
+import { config } from '../start/config'
 
 class ExpressApp {
   private express: Express
@@ -22,10 +24,18 @@ class ExpressApp {
   }
 
   public setRoutes() {
-    console.log(Route.routes)
-
     for (const route of Route.routes) {
-      this.express[route.method](route.path,async (req,res)=> res.send(await route.handle(req)))
+      let middleware: Middleware[] = config.defaultsMiddleware
+
+      let middlewareHandle = middleware.map(a => a.handle)
+      if (route.middleware)
+        route.middleware.map(i => middlewareHandle.push(i.handle))
+
+      this.express[route.method](route.path, ...middlewareHandle, async (req, resp) => {
+        const retHandle = await route.handle(req)
+        resp.status(retHandle.statusCode)
+        resp.send(retHandle.body)
+      })
     }
   }
 

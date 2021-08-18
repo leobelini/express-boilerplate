@@ -1,22 +1,27 @@
 import { HttpMethod, HttpResponse } from "../protocols/http"
+import { Middleware } from "../protocols/middleware"
+
+type TypeHandle = (req: any) => Promise<HttpResponse>
 
 interface Route {
   method: HttpMethod,
   path: string,
-  handle: (req: any) => Promise<HttpResponse>
+  handle: TypeHandle 
+  middleware?: Middleware[]
 }
-
 
 class CRoute {
   public routes: Route[] = []
   private groupRoutes: Route[] = []
   private inGrouped: boolean = false
 
-  Add(method: HttpMethod, _path: string, handle: (req: any) => Promise<HttpResponse>) {
-    const item = {
+  Add(method: HttpMethod, _path: string, handle: TypeHandle, middleware?: Middleware[]) {
+    
+    const item: Route = {
       method: method,
       path: _path,
-      handle: async (req: any) => await handle(req)
+      handle: handle,
+      middleware:middleware
     }
 
     if (this.inGrouped)
@@ -27,12 +32,14 @@ class CRoute {
     return item
   }
 
-  Group(basePath: string, callRoutes: () => void) {
+  Group(basePath: string, callRoutes: () => void, middleware?: Middleware[]) {
     this.inGrouped = true
     callRoutes()
 
     this.routes.push(...this.groupRoutes.map(route => {
       route.path = this.joinURL([basePath, route.path])
+      if(middleware)
+        route.middleware = [...route.middleware||[],...middleware]
       return route
     }))
 
@@ -45,8 +52,8 @@ class CRoute {
     let replace = new RegExp(separator + '{1,}', 'g')
     let url = paths.join(separator).replace(replace, separator)
 
-      if (url[url.length-1] === separator)
-        url = url.slice(0, -1)
+    if (url[url.length - 1] === separator)
+      url = url.slice(0, -1)
 
     return url
   }
