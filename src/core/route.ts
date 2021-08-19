@@ -3,7 +3,7 @@ import { Middleware } from "../protocols/middleware"
 
 type TypeHandle = (req: any) => Promise<HttpResponse>
 
-interface Route {
+interface iRoute {
   method: HttpMethod,
   path: string,
   handle: TypeHandle 
@@ -11,13 +11,13 @@ interface Route {
 }
 
 class CRoute {
-  public routes: Route[] = []
-  private groupRoutes: Route[] = []
+  public routes: iRoute[] = []
+  private groupRoutes: iRoute[] = []
   private inGrouped: boolean = false
 
   Add(method: HttpMethod, _path: string, handle: TypeHandle, middleware?: Middleware[]) {
     
-    const item: Route = {
+    const item: iRoute = {
       method: method,
       path: _path,
       handle: handle,
